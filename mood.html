@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My First dApp</title>
+    <style>
+        body {
+          text-align: center;
+          background-color: darkorchid;
+          display: flex;
+          font-family:monospace;
+        }
+      
+        div {
+          width: 20%;
+          margin:auto;
+          display: flex;
+          flex-direction: column;
+        }
+      
+        button {
+          width: 100%;
+          margin: 10px 0px 5px 0px;
+        }
+      </style>
+  </head>
+  <body>
+    <div>
+        <h1>My First dApp!</h1>
+        <label for="mood">Input Mood:</label>
+        <input type="text" id="mood" />
+        <button onclick="getMood()">Get Mood</button>   
+        <button onclick="setMood()">Set Mood</button>
+        <p id="showMood">Normal</p>
+      </div>
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
+    type="application/javascript">
+  </script>
+  <script>
+    const MoodContractAddress = "0xe37248a2AE298a8abBcd3645ec7e1C4C4bEaFf58"; //enter your address
+    const MoodContractABI = [
+      {
+        "inputs": [],
+        "name": "getMood",
+        "outputs": [
+          {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "_mood",
+            "type": "string"
+          }
+        ],
+        "name": "setMood",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      }
+    ]
+    let MoodContract;
+    let signer;
+    if (window.ethereum){
+    const provider=new ethers.providers.Web3Provider(window.ethereum,"goerli")
+    provider.send("eth_requestAccounts", []).then(() => {
+    provider.listAccounts().then((accounts) => {
+    signer = provider.getSigner(accounts[0]);
+    MoodContract = new ethers.Contract(
+      MoodContractAddress,
+      MoodContractABI,
+      signer
+    );
+  });
+});
+    }
+  else{
+    alert("please install metamask")
+  }
+async function getMood() {
+  const getMoodPromise = MoodContract.getMood();
+  const Mood = await getMoodPromise;
+  document.getElementById("showMood").innerText = `Your Mood: ${Mood}`;
+  console.log(Mood);
+}
+
+async function setMood() {
+  const mood = document.getElementById("mood").value;
+  const setMoodPromise = MoodContract.setMood(mood);
+  await setMoodPromise;
+}
+  </script>
+  </body>
+</html>
